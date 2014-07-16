@@ -114,3 +114,7 @@
           location4:
             name: /devtrial
             rewrite: "^/devtrial /signup/ permanent"
+      - server:
+          listen: 80 default_server
+          server_name: "_"
+          return: 301 http://developer.rackspace.com$request_uri
