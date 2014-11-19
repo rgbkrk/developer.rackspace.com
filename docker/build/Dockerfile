@@ -1,7 +1,7 @@
 FROM ruby:2.1.5
 
 RUN apt-get update -y && \
-  apt-get install -y nodejs python python-setuptools locales && \
+  apt-get install -y nodejs python python-setuptools && \
   easy_install sphinx
 
 ADD docker/build/scripts /usr/src/scripts
