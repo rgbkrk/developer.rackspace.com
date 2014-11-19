@@ -5,5 +5,7 @@
 source /usr/src/scripts/assemble.sh
 
 cd ${WORK_DIR}
-
-exec bundle exec jekyll serve --config ${CONFIG}
+exec bundle exec jekyll serve \
+  --config ${CONFIG} \
+  --source ${WORK_DIR} \
+  --destination ${TARGET_DIR}
