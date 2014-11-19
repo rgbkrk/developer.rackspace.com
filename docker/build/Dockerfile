@@ -11,4 +11,6 @@ ADD Gemfile.lock /usr/src/Gemfile.lock
 
 RUN bundle install --gemfile=/usr/src/Gemfile
 
+EXPOSE 4000
+
 CMD ["/bin/bash", "/usr/src/scripts/preview.sh"]

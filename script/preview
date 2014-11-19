@@ -11,10 +11,11 @@ ${ROOT}/docker/build/use.sh
 
 docker build --tag devsite/build ${ROOT}
 exec docker run \
-  --interactive=true --tty=true \
+  --interactive=true --tty=true --rm=true \
   --volume=${ROOT}/src/docs:/usr/src/docs:ro \
   --volume=${ROOT}/src/site_source:/usr/src/site_source:ro \
   --volume=${ROOT}/Gemfile:/usr/src/Gemfile:ro \
   --volume=${ROOT}/Gemfile.lock:/usr/src/Gemfile.lock:ro \
+  --publish=4000:4000 \
   devsite/build \
   /usr/src/scripts/preview.sh
