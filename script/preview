@@ -2,6 +2,21 @@
 
 set -e
 
+BUILD=
+
+# Parse command-line arguments.
+while getopts :b OPT; do
+  case ${OPT} in
+    b)
+      BUILD="true"
+      ;;
+    \?)
+      echo "Unrecognized option: ${OPTARG}"
+      exit 1
+      ;;
+  esac
+done
+
 if which boot2docker 2>/dev/null 1>&2; then
   boot2docker up 2>/dev/null 1>&2
   $(boot2docker shellinit) 2>/dev/null 1>&2
@@ -15,9 +30,11 @@ OUT=${ROOT}/_site
 mkdir -p ${OUT}
 rm -f ${OUT}/index.html
 
-# Build a fresh container image.
-${ROOT}/docker/build/use.sh
-docker build --tag devsite/build ${ROOT}
+# Build a fresh container image if requested.
+if [ "${BUILD}" = "true" ]; then
+  ${ROOT}/docker/build/use.sh
+  docker build --tag devsite/build ${ROOT}
+fi
 
 docker run \
   --interactive=true --tty=true --detach=true \
