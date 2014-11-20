@@ -6,7 +6,12 @@ set -e
 
 export WORK_DIR=/usr/src/_work
 export TARGET_DIR=/usr/src/_site
-export CONFIG=/usr/src/config/_config.yml
+export CONFIG=/usr/src/baseconfig.yml
+
+# Append additional (volume-mounted) configuration files.
+for CONFIGFILE in /usr/src/config/*.yml; do
+  export CONFIG=${CONFIG},${CONFIGFILE}
+done
 
 # Create the working directory.
 mkdir -p ${WORK_DIR}

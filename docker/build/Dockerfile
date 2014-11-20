@@ -5,7 +5,7 @@ RUN apt-get update -y && \
   easy_install sphinx
 
 ADD docker/build/scripts /usr/src/scripts
-ADD docker/build/config /usr/src/config
+ADD docker/build/config/baseconfig.yml /usr/src/baseconfig.yml
 ADD Gemfile /usr/src/Gemfile
 ADD Gemfile.lock /usr/src/Gemfile.lock
 

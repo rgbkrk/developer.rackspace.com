@@ -38,19 +38,19 @@ docker run \
   --interactive=true --tty=true --detach=true \
   --volume=${ROOT}/src/docs:/usr/src/docs:ro \
   --volume=${ROOT}/src/site_source:/usr/src/site_source:ro \
-  --volume=${OUT}:/usr/src/_site \
+  --volume=${ROOT}/src/site_source/_devconfig.yml:/usr/src/config/_devconfig.yml:ro \
+  --volume=${TARGET}:/usr/src/_site \
   --publish=4000:4000 \
   --name=preview \
   devsite/build \
-  /usr/src/scripts/preview.sh \
-  >/dev/null
+  /usr/src/scripts/preview.sh
 
 if which open 2>/dev/null 1>&2; then
   autoopen()
   {
     # Wait for the build to complete.
     for TRY in $(seq 0 120); do
-      [ -f ${OUT}/index.html ] && break
+      [ -f "${TARGET}/index.html" ] && break
       sleep 1
     done
 
