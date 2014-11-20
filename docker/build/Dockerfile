@@ -2,15 +2,23 @@ FROM ruby:2.1.5
 
 RUN apt-get update -y && \
   apt-get install -y nodejs python python-setuptools && \
-  easy_install sphinx
+  easy_install sphinx && \
+  useradd publisher --home /home/publisher --create-home && \
+  chown -R publisher:publisher ${GEM_HOME}
 
-ADD docker/build/scripts /usr/src/scripts
-ADD docker/build/config/baseconfig.yml /usr/src/baseconfig.yml
-ADD Gemfile /usr/src/Gemfile
-ADD Gemfile.lock /usr/src/Gemfile.lock
+USER publisher
 
-RUN bundle install --gemfile=/usr/src/Gemfile
+# Override some inherited settings that assume a root user.
+RUN echo 'gem: --no-rdoc --no-ri' >> "${HOME}/.gemrc"
+ENV PATH ${GEM_HOME}/bin:${PATH}
+
+ADD docker/build/scripts /home/publisher/scripts
+ADD docker/build/config/baseconfig.yml /home/publisher/baseconfig.yml
+ADD Gemfile /home/publisher/Gemfile
+ADD Gemfile.lock /home/publisher/Gemfile.lock
+
+RUN bundle install --gemfile=/home/publisher/Gemfile
 
 EXPOSE 4000
 
-CMD ["/bin/bash", "/usr/src/scripts/preview.sh"]
+CMD ["/bin/bash", "/home/publisher/preview.sh"]

@@ -4,12 +4,12 @@
 
 set -e
 
-export WORK_DIR=/usr/src/_work
-export TARGET_DIR=/usr/src/_site
-export CONFIG=/usr/src/baseconfig.yml
+export WORK_DIR=${HOME}/_work
+export TARGET_DIR=${HOME}/_site
+export CONFIG=${HOME}/baseconfig.yml
 
 # Append additional (volume-mounted) configuration files.
-for CONFIGFILE in /usr/src/config/*.yml; do
+for CONFIGFILE in ${HOME}/config/*.yml; do
   export CONFIG=${CONFIG},${CONFIGFILE}
 done
 
@@ -17,8 +17,8 @@ done
 mkdir -p ${WORK_DIR}
 
 # Copy the Jekyll source into the work directory.
-rsync -Ca /usr/src/site_source/ ${WORK_DIR}/
+rsync -Ca ${HOME}/site_source/ ${WORK_DIR}/
 
 # Use Sphinx to build the API docs into a subdirectory of the work directory.
-cd /usr/src/docs
+cd ${HOME}/docs
 sphinx-build . ${WORK_DIR}/docs

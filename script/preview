@@ -13,14 +13,14 @@ rm -f ${TARGET}/index.html
 
 docker run \
   --interactive=true --tty=true --detach=true \
-  --volume=${ROOT}/src/docs:/usr/src/docs:ro \
-  --volume=${ROOT}/src/site_source:/usr/src/site_source:ro \
-  --volume=${ROOT}/src/site_source/_devconfig.yml:/usr/src/config/_devconfig.yml:ro \
-  --volume=${TARGET}:/usr/src/_site \
+  --volume=${ROOT}/src/docs:/home/publisher/docs:ro \
+  --volume=${ROOT}/src/site_source:/home/publisher/site_source:ro \
+  --volume=${ROOT}/src/site_source/_devconfig.yml:/home/publisher/config/_devconfig.yml:ro \
+  --volume=${TARGET}:/home/publisher/_site \
   --publish=4000:4000 \
   --name=preview \
   devsite/build \
-  /usr/src/scripts/preview.sh
+  /home/publisher/scripts/preview.sh
 
 if has open; then
   autoopen()
