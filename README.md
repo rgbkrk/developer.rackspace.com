@@ -20,6 +20,8 @@ To do:
 
 ## Content Setup
 
+Please see [the contributing document](/src/site_source/CONTRIBUTING.md) for guidance on submitting blog posts.
+
 To preview local changes made to the site's static content, including the Getting Started guides or the blog, run:
 
 ```
@@ -78,7 +80,3 @@ __Note__: You should use this setup if you work on the entire d.r.c. site, its i
         ```bash
         sudo tail -F /var/log/upstart/watcher.log
         ```
-
-## Blog Contributor Setup
-
-Please see [here](/src/site_source/CONTRIBUTING.md).
