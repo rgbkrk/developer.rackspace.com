@@ -9,4 +9,4 @@ The image contains only the tooling and none of the content. Specifically, it ex
  * `/home/publisher/config`: mount *.yml files in here to configure Jekyll
  * `/home/publisher/_site`: compiled site is written here
 
-A convenient frontend for this image is `script/preview`.
+Convenient frontends for this image are `script/preview` and `script/build`.
