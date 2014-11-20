@@ -17,8 +17,8 @@ done
 mkdir -p ${WORK_DIR}
 
 # Copy the Jekyll source into the work directory.
-rsync -Ca ${HOME}/site_source/ ${WORK_DIR}/
+rsync -Ca ${HOME}/src-jekyll/ ${WORK_DIR}/
 
 # Use Sphinx to build the API docs into a subdirectory of the work directory.
-cd ${HOME}/docs
+cd ${HOME}/src-sphinx
 sphinx-build . ${WORK_DIR}/docs

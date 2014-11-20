@@ -13,8 +13,8 @@ rm -f ${TARGET}/index.html
 
 docker run \
   --interactive=true --tty=true --detach=true \
-  --volume=${ROOT}/src/docs:/home/publisher/docs:ro \
-  --volume=${ROOT}/src/site_source:/home/publisher/site_source:ro \
+  --volume=${ROOT}/src/docs:/home/publisher/src-sphinx:ro \
+  --volume=${ROOT}/src/site_source:/home/publisher/src-jekyll:ro \
   --volume=${ROOT}/src/site_source/_devconfig.yml:/home/publisher/config/_devconfig.yml:ro \
   --volume=${TARGET}:/home/publisher/_site \
   --publish=4000:4000 \
