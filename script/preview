@@ -1,38 +1,15 @@
 #!/bin/bash
 
 ROOT=$(cd $(dirname $0)/.. && pwd)
-
 source ${ROOT}/script/common/yaks.sh
-
 set -e
 
-BUILD=
-
-# Parse command-line arguments.
-while getopts :b OPT; do
-  case ${OPT} in
-    b)
-      BUILD="true"
-      ;;
-    \?)
-      echo "Unrecognized option: ${OPTARG}"
-      exit 1
-      ;;
-  esac
-done
-
-OUT=${ROOT}/_site
+TARGET=${ROOT}/_site
 
 # Create the output directory if necessary. If a previous run's output is already there, ensure
 # that the wait loop below has something to look for.
-mkdir -p ${OUT}
-rm -f ${OUT}/index.html
-
-# Build a fresh container image if requested.
-if [ "${BUILD}" = "true" ]; then
-  ${ROOT}/docker/build/use.sh
-  docker build --tag devsite/build ${ROOT}
-fi
+mkdir -p ${TARGET}
+rm -f ${TARGET}/index.html
 
 docker run \
   --interactive=true --tty=true --detach=true \
@@ -45,7 +22,7 @@ docker run \
   devsite/build \
   /usr/src/scripts/preview.sh
 
-if which open 2>/dev/null 1>&2; then
+if has open; then
   autoopen()
   {
     # Wait for the build to complete.
