@@ -1,5 +1,9 @@
 #!/bin/bash
 
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+source ${ROOT}/script/common/yaks.sh
+
 set -e
 
 BUILD=
@@ -17,12 +21,6 @@ while getopts :b OPT; do
   esac
 done
 
-if which boot2docker 2>/dev/null 1>&2; then
-  boot2docker up 2>/dev/null 1>&2
-  $(boot2docker shellinit) 2>/dev/null 1>&2
-fi
-
-ROOT=$(cd $(dirname $0)/.. && pwd)
 OUT=${ROOT}/_site
 
 # Create the output directory if necessary. If a previous run's output is already there, ensure
