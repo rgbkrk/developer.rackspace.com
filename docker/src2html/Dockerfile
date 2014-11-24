@@ -12,8 +12,8 @@ USER publisher
 RUN echo 'gem: --no-rdoc --no-ri' >> "${HOME}/.gemrc"
 ENV PATH ${GEM_HOME}/bin:${PATH}
 
-ADD docker/build/scripts /home/publisher/scripts
-ADD docker/build/config/baseconfig.yml /home/publisher/baseconfig.yml
+ADD docker/src2html/scripts /home/publisher/scripts
+ADD docker/src2html/config/baseconfig.yml /home/publisher/baseconfig.yml
 ADD Gemfile /home/publisher/Gemfile
 ADD Gemfile.lock /home/publisher/Gemfile.lock
 

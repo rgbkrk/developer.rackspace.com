@@ -18,7 +18,7 @@ docker run \
   --volume=${TARGET}:/home/publisher/_site \
   --publish=4000:4000 \
   --name=preview \
-  devsite/build \
+  devsite/src2html \
   /home/publisher/scripts/preview.sh
 
 if has open; then
