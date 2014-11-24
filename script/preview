@@ -1,5 +1,29 @@
 #!/bin/bash
 
+HOSTPORT=4000
+
+while getopts :p:h OPT; do
+  case ${OPT} in
+    p)
+      HOSTPORT=${OPTARG}
+      ;;
+    h)
+      echo "Usage: script/preview [-p PORT]"
+      echo
+      echo " -p PORT  Change the host port used to serve the site. Default: ${HOSTPORT}"
+      exit 0
+      ;;
+    \?)
+      echo "Unrecognized option: ${OPTARG}" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option ${OPTARG} requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
 ROOT=$(cd $(dirname $0)/.. && pwd)
 source ${ROOT}/script/common/yaks.sh
 
@@ -16,7 +40,7 @@ docker run \
   --volume=${ROOT}/src/site_source:/home/publisher/src-jekyll:ro \
   --volume=${ROOT}/src/site_source/_devconfig.yml:/home/publisher/config/_devconfig.yml:ro \
   --volume=${TARGET}:/home/publisher/_site \
-  --publish=4000:4000 \
+  --publish=${HOSTPORT}:4000 \
   --name=preview \
   devsite/src2html \
   /home/publisher/scripts/preview.sh
@@ -37,8 +61,8 @@ if has open; then
     sleep 3
 
     DOCKERHOST=$(boot2docker ip 2>/dev/null)
-    echo "opening http://${DOCKERHOST}:4000/"
-    open "http://${DOCKERHOST}:4000/"
+    echo "opening http://${DOCKERHOST}:${HOSTPORT}/"
+    open "http://${DOCKERHOST}:${HOSTPORT}/"
   }
 
   autoopen &
