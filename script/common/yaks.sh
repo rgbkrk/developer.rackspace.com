@@ -4,6 +4,8 @@
 # It's meant to be used in the prelude of other scripts that involve working with docker with
 # "source", so exported variables will be available if "boot2docker shellinit" is required.
 
+set -e
+
 # -- Useful functions.
 
 # A quick test to verify that a binary is installed and available on your $PATH.
