@@ -20,6 +20,16 @@ has()
 if ! has docker; then
   case $OSTYPE in
     darwin*)
+      if ! has vboxmanage; then
+        URL=http://download.virtualbox.org/virtualbox/4.3.20/VirtualBox-4.3.20-96996-OSX.dmg
+        DMG=${HOME}/Desktop/VirtualBox-4.3.20-96996-OSX.dmg
+
+        echo "Downloading and installing VirtualBox."
+        curl -L ${URL} > ${DMG}
+        hdiutil attach ${DMG}
+        sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
+      fi
+
       if ! has brew; then
         echo "Installing homebrew."
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
