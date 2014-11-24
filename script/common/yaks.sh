@@ -15,6 +15,16 @@ has()
   return $?
 }
 
+# Print a standard banner
+banner()
+{
+  let WIDTH=76-${#1}
+  printf -v PADDING '%*s' "${WIDTH}"
+  PADDING=${PADDING// /#}
+
+  printf "## %s %s\n" "${1}" "${PADDING}"
+}
+
 # -- Install docker if it's absent.
 
 if ! has docker; then
@@ -24,30 +34,30 @@ if ! has docker; then
         URL=http://download.virtualbox.org/virtualbox/4.3.20/VirtualBox-4.3.20-96996-OSX.dmg
         DMG=${HOME}/Desktop/VirtualBox-4.3.20-96996-OSX.dmg
 
-        echo "Downloading and installing VirtualBox."
+        banner "Downloading and installing VirtualBox."
         curl -L ${URL} > ${DMG}
         hdiutil attach ${DMG}
         sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
       fi
 
       if ! has brew; then
-        echo "Installing homebrew."
+        banner "Installing homebrew."
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
       fi
 
       if ! has boot2docker; then
-        echo "Installing the boot2docker VM via homebrew."
+        banner "Installing the boot2docker VM via homebrew."
         brew install boot2docker
 
-        echo "Initializing the boot2docker VM."
+        banner "Initializing the boot2docker VM."
         boot2docker init
       fi
 
-      echo "Installing the docker client."
+      banner "Installing the docker client."
       brew install docker
       ;;
     *)
-      echo "Installing docker via <https://get.docker.com>."
+      banner "Installing docker via <https://get.docker.com>."
 
       if has curl; then
         curl -sSL https://get.docker.com/ | sh
@@ -70,9 +80,11 @@ if has boot2docker; then
     running)
       ;;
     poweroff|aborted)
+      banner "Powering on boot2docker."
       boot2docker up
       ;;
     *machine\ not\ exist)
+      banner "Initializing and powering on boot2docker."
       boot2docker init
       boot2docker up
       ;;
@@ -86,6 +98,6 @@ if has boot2docker; then
   esac
 
   if [ -z "${DOCKER_CERT_PATH}" ] || [ -z "${DOCKER_TLS_VERIFY}" ] || [ -z "${DOCKER_HOST}" ]; then
-    $(boot2docker shellinit)
+    $(boot2docker shellinit 2>/dev/null)
   fi
 fi
