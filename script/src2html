@@ -13,7 +13,6 @@ docker run \
   --volume=${ROOT}/src/site_source:/home/publisher/src-jekyll:ro \
   --volume=${ROOT}/src/site_source/_devconfig.yml:/home/publisher/config/_devconfig.yml:ro \
   --volume=${TARGET}:/home/publisher/_site \
-  --publish=4000:4000 \
-  --name=builder \
+  --name=src2html \
   devsite/src2html \
   /home/publisher/scripts/build.sh
