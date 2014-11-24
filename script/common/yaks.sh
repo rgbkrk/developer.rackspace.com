@@ -65,11 +65,15 @@ fi
 # -- Start boot2docker if needed.
 
 if has boot2docker; then
-  STATUS=$(boot2docker status 2>&1)
+  STATUS=$(boot2docker status 2>&1 || true)
   case $STATUS in
     running)
       ;;
-    poweroff)
+    poweroff|aborted)
+      boot2docker up
+      ;;
+    *machine\ not\ exist)
+      boot2docker init
       boot2docker up
       ;;
     *)
