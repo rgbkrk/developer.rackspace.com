@@ -21,4 +21,4 @@ RUN bundle install --gemfile=/home/publisher/Gemfile
 
 EXPOSE 4000
 
-CMD ["/bin/bash", "/home/publisher/preview.sh"]
+CMD ["/bin/bash", "/home/publisher/scripts/build.sh"]
