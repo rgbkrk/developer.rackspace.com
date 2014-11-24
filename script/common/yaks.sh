@@ -35,11 +35,16 @@ if ! has docker; then
         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
       fi
 
-      echo "Installing docker via homebrew."
-      brew install boot2docker
+      if ! has boot2docker; then
+        echo "Installing the boot2docker VM via homebrew."
+        brew install boot2docker
 
-      echo "Initializing the boot2docker VM."
-      boot2docker init
+        echo "Initializing the boot2docker VM."
+        boot2docker init
+      fi
+
+      echo "Installing the docker client."
+      brew install docker
       ;;
     *)
       echo "Installing docker via <https://get.docker.com>."
