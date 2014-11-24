@@ -25,16 +25,17 @@ source ${ROOT}/script/common/yaks.sh
 for CONTAINER in "$@"; do
   DOCKDIR="${ROOT}/docker/${CONTAINER}"
   DOCKERFILE="${DOCKDIR}/Dockerfile"
-  VARFILE="${DOCKDIR}/vars.sh"
+  CONTEXTFILE="${DOCKDIR}/buildcontext"
 
-  if [ ! -d "${DOCKDIR}" ] || [ ! -f "${DOCKERFILE}" ] || [ ! -f "${VARFILE}" ] ; then
+  if [ ! -d "${DOCKDIR}" ] || [ ! -f "${DOCKERFILE}" ] || [ ! -f "${CONTEXTFILE}" ] ; then
     echo "Unrecognized container: ${CONTAINER}"
     continue
   fi
 
-  source ${VARFILE}
+  printf -v RELCONTEXT '%s' $(cat ${CONTEXTFILE})
+  CONTEXT=${ROOT}/${RELCONTEXT}
 
   cp ${DOCKDIR}/Dockerfile ${CONTEXT}/Dockerfile
-  docker build --tag ${TAG} ${CONTEXT}
+  docker build --tag devsite/${CONTAINER} ${CONTEXT}
   rm ${CONTEXT}/Dockerfile
 done
