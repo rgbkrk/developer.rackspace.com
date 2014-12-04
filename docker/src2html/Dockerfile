@@ -9,7 +9,7 @@ RUN apt-get update -y && \
 USER publisher
 
 # Override some inherited settings that assume a root user.
-RUN echo 'gem: --no-rdoc --no-ri' >> "${HOME}/.gemrc"
+RUN echo 'gem: --no-rdoc --no-ri' >> "/home/publisher/.gemrc"
 ENV PATH ${GEM_HOME}/bin:${PATH}
 
 ADD docker/src2html/scripts /home/publisher/scripts
