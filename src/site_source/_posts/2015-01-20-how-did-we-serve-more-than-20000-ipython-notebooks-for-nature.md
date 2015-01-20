@@ -48,11 +48,7 @@ location ~ /(user[-/][a-zA-Z0-9]*)/static/(.*) {
 }
 ```
 
-This is both for speed and to use less file descriptors across the system.
-
-We ended up pulling some neat tricks with our deployment setup to [mount a dummy user container's static files into an nginx container](https://github.com/jupyter/tmpnb-deploy/pull/3).
-
-HOWEVER, if you don't do this, you get the neat side effect of never having caching problems when launching userland containers and even means you could ship different ones to different users! 
+This is both for speed and to use fewer file descriptors across the system. We ended up pulling some neat tricks with our deployment setup to [mount a dummy user container's static files into an nginx container](https://github.com/jupyter/tmpnb-deploy/pull/3). However, if you don't do this, you get the neat side effect of never having caching problems when launching new versions of userland containers, and even means you could ship different ones to different users!
 
 ### Websockets and this simple proxy gobble up ports
 
