@@ -1,0 +1,97 @@
+---
+layout: post
+title: "How did we serve > 20,000 IPython notebooks for Nature readers?"
+date: 2015-01-20
+comments: true
+author: Kyle Kelley
+published: true
+categories:
+    - IPython
+    - Science
+    - Data Science
+    - Docker
+    - tmpnb
+    - Jupyter
+    - Ephemeral
+---
+The IPython/Jupyter notebook is a wonderful environment for computations, prose, plots, and interactive widgets that you can share with collaborators. People use the notebook [all](http://blog.quantopian.com/quantopian-research-your-backtesting-data-meets-ipython-notebook/) [over](http://nbviewer.ipython.org/github/GoogleCloudPlatform/ipython-soccer-predictions/blob/master/predict/wc-final.ipynb) [the](https://github.com/facebook/iTorch) [place](http://nbviewer.ipython.org/url/norvig.com/ipython/TSPv3.ipynb) across [many varied languages](https://github.com/ipython/ipython/wiki/IPython-kernels-for-other-languages). It gets used by [data scientists](http://nbviewer.ipython.org/gist/wrobstory/1eb8cb704a52d18b9ee8/Up%20and%20Down%20PyData%202014.ipynb), researchers, analysts, developers, and people in between.
+
+As I alluded to in a writeup on [Instant Temporary Notebooks](http://lambdaops.com/ipythonjupyter-tmpnb-debuts/), we (combination of IPython/Jupyter and Rackspace) were prepping for a big demo as part of a [Nature article on IPython Notebooks](http://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261) by [Helen Shen](https://twitter.com/HelenShenWrites). The impetus behind the demo was to show off the IPython notebook to readers in an interactive format. What better way than to [provide a live notebook server to readers on demand](http://www.nature.com/news/ipython-interactive-demo-7.21492)?
+
+[![Screenshot 2015-01-15 21.17.15.png](https://d23f6h5jpj26xu.cloudfront.net/nvqcj7okftoqw_small.png)](http://img.svbtle.com/nvqcj7okftoqw.png)
+
+To do this, we created a [temporary notebook service](https://tmpnb.org) in collaboration with the IPython/Jupyter team.
+
+### How does this temporary notebook service work?
+
+[tmpnb](https://github.com/jupyter/tmpnb) is a service that spawns new notebook servers, backed by Docker, for each user. Everyone gets their own sandbox to play in, assigned a unique path.
+
+When a user hits the main endpoint, they're actually hitting an [http proxy](https://github.com/jupyter/configurable-http-proxy) which routes initial traffic to tmpnb's orchestrator. From here a new user container is set up and a new route (e.g. `/user/fX104pghHEha/tree`) is assigned on the proxy.
+
+[![tmpnb-setup.gif](https://d23f6h5jpj26xu.cloudfront.net/z9gjan4yftabyq_small.gif)](http://img.svbtle.com/z9gjan4yftabyq.gif)
+
+Working our way up to the Nature demo, we had several live alpha prototypes around the same time at Strata NYC 2014:
+
+* Paco Nathan's Just Enough Math tutorial at Strata, in coordination with O'Reilly Media
+
+* tmpnb was announced and used during the very first PyData talk at Strata by Fernando Perez
+
+* Olivier Grisel used it in his scikit learn tutorial
+
+After a whole bunch of local activity, we learned quite a bit:
+
+### Static assets should be served via nginx instead of within each user container
+
+```
+location ~ /(user[-/][a-zA-Z0-9]*)/static/(.*) {
+    alias /srv/ipython/IPython/html/static/$2;
+}
+```
+
+This is both for speed and to use less file descriptors across the system.
+
+We ended up pulling some neat tricks with our deployment setup to [mount a dummy user container's static files into an nginx container](https://github.com/jupyter/tmpnb-deploy/pull/3).
+
+HOWEVER, if you don't do this, you get the neat side effect of never having caching problems when launching userland containers and even means you could ship different ones to different users! 
+
+### Websockets and this simple proxy gobble up ports
+
+Each websocket opened by a user ends up 
+
+Students and instructors at MozFest (though on a smaller scale)
+
+
+We inflicted the notebook and tmpnb on students at Strata
+
+### People want to share notebooks
+
+Honestly, I should know this from working on the [notebook viewer](http://nbviewer.ipython.org/). On several occasions, people have passed me links on the demo version of tmpnb, hosted at tmpnb.org.
+
+
+```
+https://tmpnb.org/user/FKlVK3haOQRF/notebooks/SharingEffects.ipynb
+```
+
+### Pool user containers ahead of time
+
+Docker can only boot and route so many containers so quickly. To mitigate this, we created a pool of ready to go userland containers. [@smashwilson](https://github.com/smashwilson) came in and added this
+
+[![pooling.gif](https://d23f6h5jpj26xu.cloudfront.net/jlvadowzumttlg_small.gif)](http://img.svbtle.com/jlvadowzumttlg.gif)
+
+Even after adding spawn pools, Docker can still get choked out which results in failed runs. We learned this the hard way on boot up, having to code around responses from the API.
+
+## On to Nature
+
+When Brian Granger (Cal Poly) and Richard Van Noorden (Nature) came to us with the requirements originally, the goal was to have a demo *somehow*.
+
+The goal that Richard stated was to provide at most 150 concurrent users. In the back of our minds, we (the IPython/Jupyter project) knew that the initial spike in traffic would be far greater and we should be able to handle the load.
+
+< Note about MozFest, London, Nature offices >
+
+### Redirection
+
+
+
+## Closing up
+
+We love IPython notebooks, the overall architecture that has been built out here, and hope to keep supporting Open Source projects do interesting things on the internet in a way that benefits community, technology, and the whole ecosystem.
