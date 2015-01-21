@@ -26,19 +26,19 @@ To do this, we created a [temporary notebook service](https://tmpnb.org) in coll
 
 [tmpnb](https://github.com/jupyter/tmpnb) is a service that spawns new notebook servers, backed by Docker, for each user. Everyone gets their own sandbox to play in, assigned a unique path.
 
-When a user hits the main endpoint, they're actually hitting an [http proxy](https://github.com/jupyter/configurable-http-proxy) which routes initial traffic to tmpnb's orchestrator. From here a new user container is set up and a new route (e.g. `/user/fX104pghHEha/tree`) is assigned on the proxy.
+When a user visits a tmpnb, they're actually hitting an [http proxy](https://github.com/jupyter/configurable-http-proxy) which routes initial traffic to tmpnb's orchestrator. From here a new user container is set up and a new route (e.g. `/user/fX104pghHEha/tree`) is assigned on the proxy.
 
 [![tmpnb-setup.gif](https://d23f6h5jpj26xu.cloudfront.net/z9gjan4yftabyq_small.gif)](http://img.svbtle.com/z9gjan4yftabyq.gif)
 
 Working our way up to the Nature demo, we had several live alpha prototypes around the same time at Strata NYC 2014:
 
-* Paco Nathan's Just Enough Math tutorial at Strata, in coordination with O'Reilly Media
+* [Paco Nathan](https://twitter.com/pacoid)'s Just Enough Math tutorial at Strata, in coordination with O'Reilly Media/[Andrew Odewahn](https://twitter.com/odewahn)
 
-* tmpnb was announced and used during the very first PyData talk at Strata by Fernando Perez
+* tmpnb was announced and used during the very first [PyData talk at Strata NYC 2014](http://strataconf.com/stratany2014/public/schedule/detail/37035) by Fernando Perez
 
-* Olivier Grisel used it in his scikit learn tutorial
+* [Olivier Grisel](https://twitter.com/ogrisel) used it in his scikit learn tutorial
 
-After a whole bunch of local activity, we learned quite a bit:
+After all the above activity, we learned quite a bit:
 
 ### Static assets should be served via nginx instead of within each user container
 
@@ -52,12 +52,32 @@ This is both for speed and to use fewer file descriptors across the system. We e
 
 ### Websockets and this simple proxy gobble up ports
 
-Each websocket opened by a user ends up 
+Each websocket opened by a user ends up opening several ports that will stay open. Each notebook has their own websocket path.
 
-Students and instructors at MozFest (though on a smaller scale)
+```
+# Node proxy
+node     2646 *:8000 (LISTEN)
+
+# Orchestration
+python   2669 *:9999 (LISTEN)
+python   2669 *:9999 (LISTEN)
+node     2646 ip6-localhost:8001 (LISTEN)
 
 
-We inflicted the notebook and tmpnb on students at Strata
+# Established connection with client
+node     2646 10.184.2.134:8000->10.223.242.4:53254 (ESTABLI)
+
+# Docker exposes port for IPython notebook server
+docker  18173 ip6-localhost:49216 (LISTEN)
+
+# Proxy connects to docker container, keeping port allocated to websocket
+node     2646 ip6-localhost:35831->ip6-localhost:49216 (ESTABLI)
+docker  18173 ip6-localhost:49216->ip6-localhost:35831 (ESTABLI)
+
+# Docker routes onward to the IPython Notebook
+docker  18173 ip6-localhost:49216->ip6-localhost:35673 (ESTABLI)
+python   2669 ip6-localhost:35673->ip6-localhost:49216 (ESTABLI)
+```
 
 ### People want to share notebooks
 
@@ -68,17 +88,21 @@ Honestly, I should know this from working on the [notebook viewer](http://nbview
 https://tmpnb.org/user/FKlVK3haOQRF/notebooks/SharingEffects.ipynb
 ```
 
+While I would *love* to enable people to do this, we probably need an alternate way to share these temporary calculations. I've used it myself and [wished for a way to get it directly on to nbviewer](https://twitter.com/rgbkrk/status/557942542063652864). Posting static content isn't the same as giving someone the ability to remix your code though. For now, this works and has no bearing on the Nature demo. 
+
 ### Pool user containers ahead of time
 
-Docker can only boot and route so many containers so quickly. To mitigate this, we created a pool of ready to go userland containers. [@smashwilson](https://github.com/smashwilson) came in and added this
+Docker can only boot and route so many containers so quickly. To mitigate this, we created a pool of ready to go userland containers. [@smashwilson](https://github.com/smashwilson) came in and [added the spawn pools](https://github.com/jupyter/tmpnb/pull/69) after we dangled the problem in front of him.
 
 [![pooling.gif](https://d23f6h5jpj26xu.cloudfront.net/jlvadowzumttlg_small.gif)](http://img.svbtle.com/jlvadowzumttlg.gif)
 
-Even after adding spawn pools, Docker can still get choked out which results in failed runs. We learned this the hard way on boot up, having to code around responses from the API.
+This did introduce problems with initial spawns (Docker failing) and made our [introductory experience with a bit to be desired](https://github.com/jupyter/tmpnb/issues/87).
+
+We learned this the hard way on boot up, having to code around responses from the API and making sure that we block on our own server instead of Docker.
 
 ## On to Nature
 
-When Brian Granger (Cal Poly) and Richard Van Noorden (Nature) came to us with the requirements originally, the goal was to have a demo *somehow*.
+When Brian Granger (Cal Poly) and Richard Van Noorden (Nature) asked for a demo, it was quite open what that could mean. Do we have people log in to a [JupyterHub](https://github.com/jupyter/jupyterhub) installation? Refer them to [Wakari](https://wakari.io/) or [Sage Math Cloud](https://cloud.sagemath.com/)?
 
 The goal that Richard stated was to provide at most 150 concurrent users. In the back of our minds, we (the IPython/Jupyter project) knew that the initial spike in traffic would be far greater and we should be able to handle the load.
 
@@ -91,3 +115,5 @@ The goal that Richard stated was to provide at most 150 concurrent users. In the
 ## Closing up
 
 We love IPython notebooks, the overall architecture that has been built out here, and hope to keep supporting Open Source projects do interesting things on the internet in a way that benefits community, technology, and the whole ecosystem.
+
+We didn't expect to build a system that would let people create user environments they could use for teaching and tutorials. I'm incredibly humbled that [Nikolay Koldunov](https://twitter.com/koldunovn) used it for [a tutorial at YaC 2014](http://koldunov.net/?p=950) while it was still in its infancy.
