@@ -52,18 +52,21 @@ This is both for speed and to use fewer file descriptors across the system. We e
 
 ### Websockets and this simple proxy gobble up ports
 
-Each websocket opened by a user ends up opening several ports that will stay open. Each notebook has their own websocket path.
+Each websocket opened by a user ends up opening several ports that will stay open. Since each notebook on a notebook server will open at least one websocket, the number of notebooks you have open directly correlates with the number of websockets.
+
+Here's some trimmed and commented `lsof -i` output when a single user is accessing an IPython 3.x notebook server through tmpnb:
 
 ```
+# The fixed pieces of networking for tmpnb itself
 # Node proxy
 node     2646 *:8000 (LISTEN)
 
-# Orchestration
+# Orchestration layer of tmpnb
 python   2669 *:9999 (LISTEN)
 python   2669 *:9999 (LISTEN)
 node     2646 ip6-localhost:8001 (LISTEN)
 
-
+# Now for the pieces that each user will be "allocated"
 # Established connection with client
 node     2646 10.184.2.134:8000->10.223.242.4:53254 (ESTABLI)
 
@@ -78,6 +81,8 @@ docker  18173 ip6-localhost:49216->ip6-localhost:35831 (ESTABLI)
 docker  18173 ip6-localhost:49216->ip6-localhost:35673 (ESTABLI)
 python   2669 ip6-localhost:35673->ip6-localhost:49216 (ESTABLI)
 ```
+
+This got really bad when the notebook server had 3 websockets per notebook and users were opening more than a few notebooks during a tutorial. Websockets have to stay established, by nature.
 
 ### People want to share notebooks
 
